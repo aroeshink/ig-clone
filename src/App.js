@@ -2,19 +2,45 @@
 import React, { Component } from 'react';
 import './App.css';
 import Header from './components/Header';
-import Post from './components/Post';
+import Posts from './components/Posts';
+import ApolloClient from 'apollo-boost';
+import { ApolloProvider } from 'react-apollo';
+import Pusher from 'pusher-js';
 
+// setup graphql client
+const client = new ApolloClient({
+  uri: "http://localhost:4000/graphql"
+})
+
+// create Component
 class App extends Component {
+  constructor() {
+    super();
+    //connect to pusher
+    this.pusher = new Pusher('41d87ef596e474059338', {
+      cluser: 'us2',
+      encrypted: true
+    });
+  }
+
+  componentDidMount() {
+    if ('actions' in Notification.prototype) {
+      console.log('You can enjoy the notification feature');
+    } else {
+      alert('Sorry, notifications are NOT supported on your browser');
+    }
+  }
+
   render() {
     return(
-      <div className="App">
-        <Header />
-        <section>
-          <Post nickname="Chris" avatar="https://www.laravelnigeria.com/img/chris.jpg" caption="Moving the community!" image="https://pbs.twimg.com/media/DOXI0IEXkAAkokm.jpg" />
-          <Post nickname="OG" avatar="https://www.laravelnigeria.com/img/chris.jpg" caption="Holding a mic" image="https://pbs.twimg.com/media/DOXI0IEXkAAkokm.jpg" />
-
-        </section>
-      </div>
+      <ApolloProvider client={client}>
+        <div className="App">
+          <Header />
+          <section className="App-main">
+            <Posts pusher={this.pusher} apollo_client={client} />
+          </section>
+        </div>
+      </ApolloProvider>
     );
   }
 }
